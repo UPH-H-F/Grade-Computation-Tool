@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passing Grade Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <style>
+        /* Styling for the body to set a background image */
+        body {
+            background-image: url('kelly-sikkema-2q_frVRXWfQ-unsplash.jpg');
+            background-size: cover; /* This makes the image cover the entire background */
+            background-position: center; /* This centers the image */
+            background-repeat: no-repeat; /* This prevents the image from repeating */
+            background-attachment: fixed; /* This makes the background image fixed when scrolling */
+        }
+    </style>
+
+    <div class="container">
+        <h1>Passing Grade Calculator</h1>
+        <label for="prelimGrade">If Student's Prelim Grade is:</label><br>
+        <input type="text" id="prelimGrade" name="prelimGrade" required><br>
+        <div id="results">
+            <button id="submitButton">Calculate</button> <br> 
+            <div class="welcome-box"> 
+                <p id="welcome-message">ℹ️ Welcome! This tool is designed to help you calculate the minimum required Midterm and Final grades to pass your subject. Grade Composition: Prelim (20%), Midterm (30%), Final (50%). You need a total of at least 75% to pass.</p> 
+            </div>
+            <p id="error-message"></p>
+            <div id="slider-container-1">
+                <label for="midtermSlider-1">Midterm Grade:</label>
+                <input type="range" id="midtermSlider-1" min="0" max="100" value="0" disabled>
+                <label for="finalSlider-1">Final Grade:</label>
+                <input type="range" id="finalSlider-1" min="0" max="100" value="0" disabled>
+            </div>
+        </div>
+    </div>
+
+    <div id="slider-container-2">
+        <label for="midtermSlider-2">Midterm Grade:</label>
+        <input type="range" id="midtermSlider-2" min="0" max="100" value="0" disabled>
+        <button id="midtermMinButton">Min</button>
+        <button id="midtermMaxButton">Max</button>
+        <label for="finalSlider-2">Final Grade:</label>
+        <input type="range" id="finalSlider-2" min="0" max="100" value="0" disabled>
+        <button id="finalMinButton">Min</button>
+        <button id="finalMaxButton">Max</button>
+    </div>
+    
+    <script>
+        // Get references to HTML elements
+        const prelimGradeInput = document.getElementById('prelimGrade');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const errorMessage = document.getElementById('error-message');
+        const midtermSlider1 = document.getElementById('midtermSlider-1');
+        const finalSlider1 = document.getElementById('finalSlider-1');
+        const midtermSlider2 = document.getElementById('midtermSlider-2');
+        const finalSlider2 = document.getElementById('finalSlider-2');
+        const sliderContainer1 = document.getElementById('slider-container-1');
+        const sliderContainer2 = document.getElementById('slider-container-2');
+        const submitButton = document.getElementById('submitButton');
+    
+        // Function to calculate the required grades
+        function calculateGrades() {
+            const prelimGrade = parseFloat(prelimGradeInput.value);
+            if (!isNaN(prelimGrade) && prelimGrade >= 0 && prelimGrade <= 100) {
+                welcomeMessage.style.display = 'none';
+                errorMessage.textContent = '';
+                midtermSlider1.disabled = false;
+                finalSlider1.disabled = false;
+                sliderContainer1.style.display = 'block';
+    
+                // Calculate required points for Midterm and Final to reach 75%
+                const requiredPoints = 75 - (prelimGrade * 0.2);
+    
+                // Check if it's possible to achieve 75%
+                if (requiredPoints < 0 || requiredPoints > 80) {
+                    errorMessage.textContent = 'Achieving 75% is not possible with the given Prelim grade.';
+                    midtermSlider1.disabled = true;
+                    finalSlider1.disabled = true;
+                    sliderContainer1.style.display = 'none';
+                } else {
+                    // Assuming the student needs to balance between Midterm and Final grades
+                    const minMidtermFinal = requiredPoints / 0.8;
+    
+                    // Update the output message and slider values
+                    errorMessage.textContent = `Minimum Required Midterm Grade: ${minMidtermFinal.toFixed(2)}`;
+                    errorMessage.textContent += `\nMinimum Required Final Grade: ${minMidtermFinal.toFixed(2)}`;
+                    midtermSlider1.value = minMidtermFinal;
+                    finalSlider1.value = minMidtermFinal;
+                    midtermSlider1.min = 0;
+                    finalSlider1.min = 0;
+                    midtermSlider1.max = 100;
+                    finalSlider1.max = 100;
+                }
+    
+                // Change button to "Reset"
+                submitButton.textContent = "Reset";
+                submitButton.style.backgroundColor = '#00d4ff'; // Color for reset
+                submitButton.removeEventListener('click', calculateGrades); // Remove old listener
+                submitButton.addEventListener('click', resetValues); // Add reset listener
+            } else {
+                welcomeMessage.style.display = 'none';
+                if (isNaN(prelimGrade)) {
+                    errorMessage.textContent = '💡 Please enter a number between 0 and 100 for your Prelim grade. The tool only works with numbers because it calculates grades.';
+                } else {
+                    errorMessage.textContent = '💡 Please enter a valid Prelim grade (0-100).';
+                }
+                midtermSlider1.disabled = true;
+                finalSlider1.disabled = true;
+                sliderContainer1.style.display = 'none';
+            }
+        }
+    
+        // Function to reset the input and sliders
+        function resetValues() {
+            prelimGradeInput.value = '';
+            midtermSlider1.value = 0;
+            finalSlider1.value = 0;
+            midtermSlider1.disabled = true;
+            finalSlider1.disabled = true;
+            sliderContainer1.style.display = 'none';
+            errorMessage.textContent = '';
+            welcomeMessage.style.display = 'block';
+            submitButton.textContent = "Calculate";
+            submitButton.removeEventListener('click', resetValues); // Remove reset listener
+            submitButton.addEventListener('click', calculateGrades); // Add calculate listener
+        }
+    
+        // Add event listener to the submit button
+        submitButton.addEventListener('click', calculateGrades);
+    
+        // Add event listener for Enter key
+        prelimGradeInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                calculateGrades();
+            }
+        });
+    
+        // Function to check and disable sliders if one reaches 100
+        function checkAndDisableSliders() {
+            if (midtermSlider1.value == 100) {
+                finalSlider1.disabled = true;
+            } else if (finalSlider1.value == 100) {
+                midtermSlider1.disabled = true;
+            } else {
+                midtermSlider1.disabled = false;
+                finalSlider1.disabled = false;
+            }
+        }
+    
+        // Event listeners for slider changes (dynamic updates)
+        midtermSlider1.addEventListener('input', () => {
+            const midtermGrade = parseFloat(midtermSlider1.value);
+            const prelimGrade = parseFloat(prelimGradeInput.value);
+            let requiredFinal = (75 - (prelimGrade * 0.2) - (midtermGrade * 0.3)) / 0.5;
+    
+            // Ensure the final grade stays within the 0 to 100 range
+            if (requiredFinal < 0) {
+                requiredFinal = 0;
+            } else if (requiredFinal > 100) {
+                requiredFinal = 100;
+            }
+    
+            // Check if the final slider can move without exceeding the range
+            if (requiredFinal >= 0 && requiredFinal <= 100) {
+                errorMessage.textContent = `Minimum Required Midterm Grade: ${midtermSlider1.value}`;
+                errorMessage.textContent += `\nMinimum Required Final Grade: ${requiredFinal.toFixed(2)}`;
+    
+                // Update the Final slider
+                finalSlider1.value = requiredFinal;
+            } else {
+                midtermSlider1.value = midtermSlider1.oldValue;
+            }
+    
+            checkAndDisableSliders();
+            midtermSlider1.oldValue = midtermSlider1.value;
+        });
+    
+        finalSlider1.addEventListener('input', () => {
+            const finalGrade = parseFloat(finalSlider1.value);
+            const prelimGrade = parseFloat(prelimGradeInput.value);
+            let requiredMidterm = (75 - (prelimGrade * 0.2) - (finalGrade * 0.5)) / 0.3;
+    
+            // Ensure the midterm grade stays within the 0 to 100 range
+            if (requiredMidterm < 0) {
+                requiredMidterm = 0;
+            } else if (requiredMidterm > 100) {
+                requiredMidterm = 100;
+            }
+    
+            // Check if the midterm slider can move without exceeding the range
+            if (requiredMidterm >= 0 && requiredMidterm <= 100) {
+                errorMessage.textContent = `Minimum Required Midterm Grade: ${requiredMidterm.toFixed(2)}`;
+                errorMessage.textContent += `\nMinimum Required Final Grade: ${finalSlider1.value}`;
+    
+                // Update the Midterm slider
+                midtermSlider1.value = requiredMidterm;
+            } else {
+                finalSlider1.value = finalSlider1.oldValue;
+            }
+    
+            checkAndDisableSliders();
+            finalSlider1.oldValue = finalSlider1.value;
+        });
+    
+        // Initialize oldValue properties
+        midtermSlider1.oldValue = midtermSlider1.value;
+        finalSlider1.oldValue = finalSlider1.value;
+    
+        // Add bouncing effect to the submit button
+        submitButton.addEventListener('mouseover', () => {
+            submitButton.style.transform = 'scale(1.1)';
+        });
+        submitButton.addEventListener('mouseout', () => {
+            submitButton.style.transform = 'scale(1)';
+        });
+    
+        // Add some extra styling
+        document.body.style.fontFamily = 'Arial, sans-serif';
+        document.body.style.margin = '0';
+        document.body.style.padding = '20px';
+        container.style.backgroundColor = 'white';
+        container.style.padding = '20px';
+        container.style.borderRadius = '10px';
+        container.style.boxShadow = '0 0 5px 2px rgba(0, 0, 0, 0.1)';
+        submitButton.style.color = 'white';
+        submitButton.style.padding = '10px 20px';
+        submitButton.style.border = 'none';
+        submitButton.style.borderRadius = '5px';
+        submitButton.style.cursor = 'pointer';
+        sliderContainer.style.marginTop = '20px';
+        sliderContainer.style.display = 'flex';
+        sliderContainer.style.flexDirection = 'column';
+        sliderContainer.style.gap = '10px';
+        midtermSlider.style.width = '100%';
+        finalSlider.style.width = '100%';
+        errorMessage.style.marginTop = '10px';
+        errorMessage.style.fontSize = '16px';
+    </script>
+    
+</body>
+</html>
