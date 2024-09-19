@@ -1,4 +1,5 @@
 # Passing Grade Calculator
+https://uph-h-f.github.io/Grade-Computation-Tool/
 
 This is a simple web-based tool to calculate the minimum required Midterm and Final grades to pass a subject. The grade composition is as follows: Prelim (20%), Midterm (30%), Final (50%). You need a total of at least 75% to pass.
 
